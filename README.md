@@ -1,4 +1,6 @@
 # sp -portal
+
+NOT MINE! All rights reserved to Dina Vinter :) 
  
 https://dinavinter.github.io/sp-portal/index.html
 
