@@ -8,13 +8,19 @@
   
 	window.load_cfg= load_cfg;
 	window.update_all= update_all;
+	window.update_all_sso_group= update_all_sso_group;
 	load_sites();
-	load_all();	 
+	// load_all("cfgform");	 
+
+	var SsoIdpSites = ['idp1','idp2'];
+	var ssoGroup = 'ssoGroup';
+	load_all_sso_group (ssoGroup,SsoIdpSites);
 
 function init()
 		{
 			load_sites();
-			load_all();
+			// load_all("cfgform");
+			load_all_sso_group (ssoGroup,SsoIdpSites);
 		}
 	    
  function update_all() {
@@ -26,11 +32,39 @@ function init()
 	}
 }
 
-function load_all () {
-	var cfgform = document.getElementById("cfgform");
+function load_all (idpCfg) {
+	var cfgform = document.getElementById(idpCfg);
 	var fields = cfgform.getElementsByClassName("cfgfield");
 	for (var i = 0; i < fields.length; i++) {
 		fields[i].value = localStorage.getItem(fields[i].id);
+	}
+}
+
+
+	function load_all_sso_group (idpCfg,SSosites) {
+		var cfgform = document.getElementById(idpCfg);
+	for (var i = 0; i < SSosites.length; i++) {
+		var forms = cfgform.getElementsByTagName("*");
+		var fields = forms[SSosites[i]].getElementsByClassName("cfgfield");
+		for (var j = 0; j < fields.length; j++) {
+			var itemName = "";
+			fields[j].value = localStorage.getItem(itemName.concat(SSosites[i],' ',fields[j].id));
+		}
+	}
+}
+
+
+function update_all_sso_group () {
+		var cfgform = document.getElementById(ssoGroup);
+	for (var i = 0; i < SsoIdpSites.length; i++) {
+		var forms = cfgform.getElementsByTagName("*");
+		var fields = forms[SsoIdpSites[i]].getElementsByClassName("cfgfield");
+		for (var j = 0; j < fields.length; j++) {
+			var value = fields[j].value;
+			var itemName = "";
+
+			localStorage.setItem(itemName.concat(SsoIdpSites[i],' ',fields[j].id),value);
+		}
 	}
 }
 
@@ -48,7 +82,7 @@ function load_sites() {
 		Object.keys(cfg).forEach(x=>{
 			localStorage.setItem(x, cfg[x]);});
 
-		load_all();
+		load_all("cfgform");
 	}
  
 </script>
@@ -59,29 +93,46 @@ function load_sites() {
 <div id="environment-content"  class="sidebar" >
      	  
 </div>
+<div id="ssoGroup">
+	<h1>idp1</h1>
+	<form id="idp1" action="javascript:void(0)"  style="margin-left:100">
+		<div class="form-group">
+			<label for="domain">Gigya Domain</label>
+			<input class="form-control cfgfield" id="domain" type="text"></input>
+		</div>
 
-<form id="cfgform" action="javascript:void(0)"  style="margin-left:100">
+		<div class="form-group">
+			<label for="apiKey">API key</label>
+			<input class="form-control cfgfield" id="apiKey" type="text"></input>
+		</div>
 
-	<div class="form-group">
-		<label for="domain">Gigya Domain</label>
-		<input class="form-control cfgfield" id="domain" type="text"></input>
-	</div>
-	
-	<div class="form-group">
-		<label for="apiKey">API key</label>
-		<input class="form-control cfgfield" id="apiKey" type="text"></input>
-	</div>
+		<div class="form-group">
+			<label for="apiKey">SPNames</label>
+			<input class="form-control cfgfield" id="sps" type="text"></input>
+		</div>
+	</form>
+	<h2>idp2</h2>
+	<form id="idp2" action="javascript:void(0)"  style="margin-left:100">
+		<div class="form-group">
+			<label for="domain">Gigya Domain</label>
+			<input class="form-control cfgfield" id="domain" type="text"></input>
+		</div>
 
-	<div class="form-group">
-		<label for="apiKey">SPNames</label>
-		<input class="form-control cfgfield" id="sps" type="text"></input>
-	</div>
+		<div class="form-group">
+			<label for="apiKey">API key</label>
+			<input class="form-control cfgfield" id="apiKey" type="text"></input>
+		</div>
 
-	<div class="form-group">
-		<a href="./index.html" onclick="update_all()">save</a>
-	</div>
-</form>
+		<div class="form-group">
+			<label for="apiKey">SPNames</label>
+			<input class="form-control cfgfield" id="sps" type="text"></input>
+		</div>
 
+		<div class="form-group">
+			<a href="./index.html" onclick="update_all_sso_group()">save</a> 
+		</div>
+	</form>
+</div>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->

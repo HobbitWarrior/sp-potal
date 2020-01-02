@@ -5,8 +5,10 @@ import os
 import requests
 import json
 
-WEBDIR = os.path.abspath("../")
+WEBDIR = "D:/Gigya/dvlp/git/sp-potal"
+#WEBDIR = os.path.abspath("../")
 #WEBDIR = "D:/dvlp/b2b-test"
+
 
 app = Flask(__name__)
 sslify = SSLify(app)

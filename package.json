@@ -1,0 +1,19 @@
+{
+  "name": "sp-potal",
+  "version": "1.0.0",
+  "description": "SAML Demo",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HobbitWarrior/sp-potal.git"
+  },
+  "author": "Dina Vinter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HobbitWarrior/sp-potal/issues"
+  },
+  "homepage": "https://github.com/HobbitWarrior/sp-potal#readme"
+}
