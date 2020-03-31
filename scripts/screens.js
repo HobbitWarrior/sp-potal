@@ -34,7 +34,7 @@ async function showRegistration() {
         var params = {
             screenSet: screenSet,
             containerID: 'div',
-            startScreen: "gigya-login-screen",
+            startScreen: "gigya-mobile-login-screen",
             include:"groups",
             onAfterSubmit: r=>onCallback(r, resolve, reject)
 
