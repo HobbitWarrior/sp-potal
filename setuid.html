@@ -8,15 +8,6 @@
 	<script type="module" src="./hmacsha1-js.js"></script>
 
 	<script type="module">
-		import {sites} from './scripts/default-sites.js';
-
-		window.load_cfg = load_cfg;
-		window.update_all = update_all;
-		load_sites();
-		load_all();
-		var hmacsha1 = require('hmacsha1');
-		var hash = hmacsha1(KEY, DATA);
-
 		//convert from BASE64 to binary array function
 		var BASE64_MARKER = ';base64,';
 
@@ -33,12 +24,6 @@
 			return array;
 		}
 
-
-		function init() {
-			load_sites();
-			load_all();
-		}
-
 		function update_all() {
 			var cfgform = document.getElementById("cfgform");
 			var fields = cfgform.getElementsByClassName("cfgfield");
@@ -50,8 +35,7 @@
 			function createSignature(siteUID, dateStr, sigFromBase64) {
 				var baseString = dateStr + "_" + siteUID;
 				var hmacsha1 = require('hmacsha1');
-				var hashedBaseString = hmacsha1(sigFromBase64, baseString);
-				return hashedBaseString;
+				return hmacsha1(sigFromBase64, baseString);
 			}
 
 
@@ -73,23 +57,7 @@
 				};
 				gigya.socialize.setUID(params);
 			}
-
-			function load_all() {
-				var cfgform = document.getElementById("cfgform");
-				var fields = cfgform.getElementsByClassName("cfgfield");
-				for (var i = 0; i < fields.length; i++) {
-					fields[i].value = localStorage.getItem(fields[i].id);
-				}
-			}
-
-			function load_sites() {
-				const envList = Object.keys(sites);
-				const envsLinks = envList.map(x => `<a onClick=load_cfg("${x}") href="javascript:void(0);" style="background-color:darkslategray">${x}</a>`);
-				const envsDD = document.getElementById("environment-content");
-				envsDD.innerHTML = envsLinks.join();
-
-
-			}
+			
 	</script>
 
 </head>
