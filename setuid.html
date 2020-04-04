@@ -8,56 +8,30 @@
 	<script type="module" src="./hmacsha1-js.js"></script>
 
 	<script type="module">
-		//convert from BASE64 to binary array function
-		var BASE64_MARKER = ';base64,';
-
-		function convertDataURIToBinary(dataURI) {
-			var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-			var base64 = dataURI.substring(base64Index);
-			var raw = window.atob(base64);
-			var rawLength = raw.length;
-			var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-			for (i = 0; i < rawLength; i++) {
-				array[i] = raw.charCodeAt(i);
-			}
-			return array;
+		function createSignature(siteUID, dateStr, sigFromBase64) {
+			var baseString = dateStr + "_" + siteUID;
+			var hmacsha1 = require('hmacsha1');
+			return hmacsha1(sigFromBase64, baseString);
 		}
+		
+		function sendSetUidRequest() {
+		var setUIdFrom = document.getElementById("setUidform");
+		var fields = setUIdFrom.getElementsByClassName("setUidform");
+		var signatureFromBase64 = "NXEybVFBajAvd2doMUIzWUpXRjA2QzJVdVBQWUdqT2wvVlFEM0JsZksrWT0=";
 
-		function update_all() {
-			var cfgform = document.getElementById("cfgform");
-			var fields = cfgform.getElementsByClassName("cfgfield");
-			for (var i = 0; i < fields.length; i++) {
-				var value = fields[i].value;
-				localStorage.setItem(fields[i].id, value);
-			}
+		var dateStr = Math.round(new Date().getTime() / 1000.0);  // Current time in Unix format 
+		// (i.e., the number of seconds since Jan. 1st 1970)
+		var siteUID = 'test';  // siteUID should be taken from the new user record
+		// you have stored in your DB in the previous step
+		var yourSig = createSignature(siteUID, dateStr, signatureFromBase64);
 
-			function createSignature(siteUID, dateStr, sigFromBase64) {
-				var baseString = dateStr + "_" + siteUID;
-				var hmacsha1 = require('hmacsha1');
-				return hmacsha1(sigFromBase64, baseString);
-			}
-
-
-			function sendSetUidRequest() {
-				var setUIdFrom = document.getElementById("setUidform");
-				var fields = setUIdFrom.getElementsByClassName("setUidform");
-				var signatureFromBase64 = "NXEybVFBajAvd2doMUIzWUpXRjA2QzJVdVBQWUdqT2wvVlFEM0JsZksrWT0=";
-
-				var dateStr = Math.round(new Date().getTime() / 1000.0);  // Current time in Unix format 
-				// (i.e., the number of seconds since Jan. 1st 1970)
-				var siteUID = 'test';  // siteUID should be taken from the new user record
-				// you have stored in your DB in the previous step
-				var yourSig = createSignature(siteUID, dateStr, signatureFromBase64);
-
-				var params = {
-					siteUID: siteUID,
-					timestamp: dateStr,
-					UIDSig: yourSig
-				};
-				gigya.socialize.setUID(params);
-			}
-			
+		var params = {
+			siteUID: siteUID,
+			timestamp: dateStr,
+			UIDSig: yourSig
+		};
+		gigya.socialize.setUID(params);
+	}
 	</script>
 
 </head>
