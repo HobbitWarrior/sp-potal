@@ -2,15 +2,18 @@
 <head>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <link rel="stylesheet" href="style.css"/>
-<script type="module" src=".hmacsha1-js.js"></script> 
+<script type="module" src="./hmacsha1-js.js"></script> 
 <script  type="module">
 	import  {sites} from './scripts/default-sites.js';
   
 	window.load_cfg= load_cfg;
 	window.update_all= update_all;
 	load_sites();
-	load_all();	 
-
+	load_all();
+	var hmacsha1 = require('hmacsha1');
+	var hash = hmacsha1(KEY, DATA);
+	
+	
 function init()
 		{
 			load_sites();
