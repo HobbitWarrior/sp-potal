@@ -1,96 +1,138 @@
 <html>
 <head>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link rel="stylesheet" href="style.css"/>
-<script type="module" src="./hmacsha1-js.js"></script> 
-<script  type="module">
-	import  {sites} from './scripts/default-sites.js';
-  
-	window.load_cfg= load_cfg;
-	window.update_all= update_all;
-	load_sites();
-	load_all();
-	var hmacsha1 = require('hmacsha1');
-	var hash = hmacsha1(KEY, DATA);
-	
-	
-function init()
-		{
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="style.css"/>
+	<script type="module" src="./scripts/loadGigya.js"></script>
+	<script type="module" src="./scripts/authorization.js"></script>
+	<script type="module" src="./hmacsha1-js.js"></script>
+
+	<script type="module">
+		import {sites} from './scripts/default-sites.js';
+
+		window.load_cfg = load_cfg;
+		window.update_all = update_all;
+		load_sites();
+		load_all();
+		var hmacsha1 = require('hmacsha1');
+		var hash = hmacsha1(KEY, DATA);
+
+		//convert from BASE64 to binary array function
+		var BASE64_MARKER = ';base64,';
+
+		function convertDataURIToBinary(dataURI) {
+			var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+			var base64 = dataURI.substring(base64Index);
+			var raw = window.atob(base64);
+			var rawLength = raw.length;
+			var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+			for (i = 0; i < rawLength; i++) {
+				array[i] = raw.charCodeAt(i);
+			}
+			return array;
+		}
+
+
+		function init() {
 			load_sites();
 			load_all();
 		}
-	    
- function update_all() {
-	var cfgform = document.getElementById("cfgform");
-	var fields = cfgform.getElementsByClassName("cfgfield");
-	for (var i = 0; i < fields.length; i++) {
-		var value = fields[i].value;
-		localStorage.setItem(fields[i].id, value);
-	}
-}
 
-function load_all () {
-	var cfgform = document.getElementById("cfgform");
-	var fields = cfgform.getElementsByClassName("cfgfield");
-	for (var i = 0; i < fields.length; i++) {
-		fields[i].value = localStorage.getItem(fields[i].id);
-	}
-}
+		function update_all() {
+			var cfgform = document.getElementById("cfgform");
+			var fields = cfgform.getElementsByClassName("cfgfield");
+			for (var i = 0; i < fields.length; i++) {
+				var value = fields[i].value;
+				localStorage.setItem(fields[i].id, value);
+			}
 
-function load_sites() { 
-	const envList =  Object.keys(sites);
-	const envsLinks = envList.map(x => `<a onClick=load_cfg("${x}") href="javascript:void(0);" style="background-color:darkslategray">${x}</a>`);
-	const envsDD = document.getElementById("environment-content");
-	envsDD.innerHTML = envsLinks.join();
-	 
+			function createSignature(siteUID, dateStr, sigFromBase64) {
+				var baseString = dateStr + "_" + siteUID;
+				var hmacsha1 = require('hmacsha1');
+				var hashedBaseString = hmacsha1(sigFromBase64, baseString);
+				return hashedBaseString;
+			}
 
-}
 
-	function load_cfg(cfgName) {
-		const cfg = sites[cfgName];
-		Object.keys(cfg).forEach(x=>{
-			localStorage.setItem(x, cfg[x]);});
+			function sendSetUidRequest() {
+				var setUIdFrom = document.getElementById("setUidform");
+				var fields = setUIdFrom.getElementsByClassName("setUidform");
+				var signatureFromBase64 = "NXEybVFBajAvd2doMUIzWUpXRjA2QzJVdVBQWUdqT2wvVlFEM0JsZksrWT0=";
 
-		load_all();
-	}
- 
-</script>
+				var dateStr = Math.round(new Date().getTime() / 1000.0);  // Current time in Unix format 
+				// (i.e., the number of seconds since Jan. 1st 1970)
+				var siteUID = 'test';  // siteUID should be taken from the new user record
+				// you have stored in your DB in the previous step
+				var yourSig = createSignature(siteUID, dateStr,signatureFromBase64);
 
- </head>
+				var params = {
+					siteUID: siteUID,
+					timestamp: dateStr,
+					UIDSig: yourSig
+				};
+				gigya.socialize.setUID(params);
+			}
+
+			function load_all() {
+				var cfgform = document.getElementById("cfgform");
+				var fields = cfgform.getElementsByClassName("cfgfield");
+				for (var i = 0; i < fields.length; i++) {
+					fields[i].value = localStorage.getItem(fields[i].id);
+				}
+			}
+
+			function load_sites() {
+				const envList = Object.keys(sites);
+				const envsLinks = envList.map(x => `<a onClick=load_cfg("${x}") href="javascript:void(0);" style="background-color:darkslategray">${x}</a>`);
+				const envsDD = document.getElementById("environment-content");
+				envsDD.innerHTML = envsLinks.join();
+
+
+			}
+		</script>
+
+</head>
 <body>
 
-<div id="environment-content"  class="sidebar" >
-     	  
+<div id="environment-content" class="sidebar">
+
 </div>
 
-<form id="cfgform" action="javascript:void(0)"  style="margin-left:100">
+<form id="setUidform" action="javascript:void(0)" style="margin-left:100px">
 
 	<div class="form-group">
-		<label for="domain">Gigya Domain</label>
-		<input class="form-control cfgfield" id="domain" type="text"></input>
-	</div>
-	
-	<div class="form-group">
-		<label for="apiKey">API key</label>
-		<input class="form-control cfgfield" id="apiKey" type="text"></input>
+		<label for="secretKey">Secret Key</label>
+		<input class="form-control setUidform" id="secretKey" type="text"></input>
 	</div>
 
 	<div class="form-group">
-		<label for="apiKey">SPNames</label>
-		<input class="form-control cfgfield" id="sps" type="text"></input>
+		<label for="uid">UID / Source / From</label>
+		<input class="form-control setUidform" id="uid" type="text"></input>
 	</div>
 
 	<div class="form-group">
-		<a href="./index.html" onclick="update_all()">save</a>
+		<label for="siteUid">SiteUid / Target / To </label>
+		<input class="form-control setUidform" id="siteUid" type="text"></input>
+	</div>
+
+	<div class="form-group">
+		<a href="./index.html" onclick="sendSetUidRequest()">save</a>
 	</div>
 </form>
 
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous"></script>
 </body>
 <script>
 </script>
